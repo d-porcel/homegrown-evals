@@ -4,7 +4,9 @@ An AI judge grades every reply, so the scores are only as good as the judge. Tes
 
 ## Testing the judges
 
-Before you pay for model runs, check the judges on replies whose grades you already know. Your golden answers should get C for every grade, and replies you write to fail should get the grades you expect. List those in `judge_tests.yaml`, next to `cases.yaml`: each names a case by its `id`, gives a reply, and the grades you expect, for any of your rubric's grades. Start with one reply per case that gets its main decision wrong. Without them, a judge that passes everything would look fine.
+Before you pay for model runs, check the judges on replies whose grades you already know. Your golden answers should get C for every grade, and replies you write to fail should get the grades you expect. List those in `judge_tests.yaml`, next to `cases.yaml`: each names a case by its `id`, gives a reply, and the grades you expect, for any of your rubric's grades. The scaffold's `judge_tests.yaml` shows the format in its comments. Start with one reply per case that gets its main decision wrong. Without them, a judge that passes everything would look fine.
+
+When a test gets a grade you didn't expect, read the judge's reasoning with the command it prints. Then fix whichever is wrong: the brief, the style guide, the case's must-haves, the rubric or your expected grade, and run it again.
 
 ```bash
 python -m calibration test-judges                                  # yours

@@ -22,6 +22,8 @@ Your deterministic checks run first, as gates for hard rules: if one fails, its 
 
 Each grade is C (correct = 1), P (partial = 0.5) or I (incorrect = 0), and their average is the benchmark's headline score.
 
+After every change, run `pytest`. It checks a benchmark's files without calling any model, so it's free: it catches YAML mistakes and missing fields in `cases.yaml`, judge tests for cases that don't exist, and checks that fail your own golden answers.
+
 ## Case fields
 
 Each case needs only three fields: the message the model replies to (`input`), your ideal reply (`target`), and what a good reply must do (`must_haves`). Everything else is optional. Inspect's log viewer calls cases "samples".
@@ -40,6 +42,8 @@ Each case needs only three fields: the message the model replies to (`input`), y
 Don't name your own fields `question`, `answer`, `criterion` or `instructions`. Inspect fills those itself in the judge prompts and drops case fields with the same names.
 
 ## Your rubric
+
+The scaffold's two grades, decisions and style, work as they are. Change them only if you need something else graded.
 
 `rubric/` holds one judge prompt per grade, and every benchmark has its own, so changing one benchmark's grades never affects another. The file's name is the grade's name: add `rubric/safety.md` and every reply also gets a safety grade, with its own column on the leaderboard and in the calibration spreadsheet. Delete `rubric/style.md` and style isn't graded. Names start with a lowercase letter and use lowercase letters, digits, `-` and `_`.
 
