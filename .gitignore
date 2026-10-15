@@ -1,0 +1,7 @@
+.venv/
+/logs/
+.pytest_cache/
+.env
+__pycache__/
+.DS_Store
+/site/

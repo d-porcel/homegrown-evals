@@ -1,0 +1,41 @@
+# The linter, the formatter, the tests and the type check, on every push to main and every pull request.
+# No model is called: the tests use Inspect's mock model, so no API keys are needed.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# a newer push to the same branch replaces a run that's still going
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # the oldest Python the README promises, and the newest
+        python-version: ["3.10", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+      - name: Install
+        # --locked fails if uv.lock is out of date with pyproject.toml, instead of quietly updating it
+        run: uv sync --locked
+      - name: Lint
+        run: uv run --locked ruff check
+      - name: Format
+        run: uv run --locked ruff format --check
+      - name: Test
+        run: uv run --locked pytest
+      - name: Type check
+        run: uv run --locked pyright

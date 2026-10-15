@@ -1,0 +1,49 @@
+# Your benchmark's cases: each one is a message the model replies to, plus how to grade the reply.
+#
+# Each case needs three fields:
+#   input        the message, the way it would really arrive
+#   target       your ideal reply, in your own words
+#   must_haves   what a good reply must do: a list, or a single sentence
+# Everything else is optional. The README's "Case fields" section lists it all.
+#
+# Tips:
+# - Test one rule per case, and give every rule in brief.md at least one case.
+# - Give the model the facts the person would know, but not the decisions it's meant to make.
+# - Write each message the way it would really arrive. How to respond goes in brief.md, which the
+#   model always has, not in the cases.
+# - Put facts the person would know, but the message doesn't say, after it under "Additional context:".
+# - Write the golden answer (target) yourself. The judges compare replies with it.
+# - Make every must-have checkable, and keep them about decisions and content. Style is judged
+#   against style.md.
+# - Put the core decision first in must_haves. The judge treats the first one as what matters most,
+#   and fails a reply that gets it wrong.
+# - Add a few hard cases that need judgment the message never spells out. They're what tell
+#   strong models apart.
+# - Run pytest after every change. It checks the cases, and runs checks.py on your golden answers.
+#
+# See examples/davidness/cases.yaml for a finished set.
+
+# Optional, shown on the leaderboard. Without them, this file can be just the list of cases.
+name: My benchmark
+description: How well each model handles <what your benchmark is about>.
+
+cases:
+
+- input: |
+    It is Monday, 9am. Email from Sam, a teammate:
+
+    "Can you review my pull request today?"
+
+    Additional context:
+    Your afternoon is free.
+  target: |
+    <Your ideal reply, in your own words.>
+  must_haves:
+  - <Something the reply must do, like "Says when they'll review it">
+  - <Another one>
+
+  # Optional fields:
+  id: example-case          # a unique name for the logs and for judge_tests.yaml (default: a short code made
+                            #   from the input, which changes if you edit the input, so set your own)
+  category: example         # groups similar cases, like "priorities" or "judgment" (default: general)
+  # Any other field you add, like "channel: slack", reaches your checks in checks.py as case.metadata.

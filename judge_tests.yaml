@@ -1,0 +1,22 @@
+# Replies whose grades you already know, to check the judges before you trust them. Your golden answers
+# are always tested too, expecting C for every grade, so don't list them here. Each test has:
+#
+#   case       the id of a case in cases.yaml
+#   reply      a reply to it, written to get something wrong
+#   <grade>    the grade you expect, C, P or I, for any grade in rubric/, like decisions: I
+#   why        optional: what's wrong with the reply, shown when a judge disagrees
+#
+# Start with one reply per case that gets its main decision wrong. After you calibrate, add the
+# replies you graded yourself, with your grades, so this set grows from real mistakes. Re-run it
+# after every change to your brief, style guide, must-haves or rubric:
+#
+#   python -m calibration test-judges
+#
+# See examples/davidness/judge_tests.yaml for a finished set. Here's one for the scaffold's example case,
+# to copy for your own:
+#
+# - case: example-case
+#   reply: |-
+#     Sure, I'll take a look at it at some point.
+#   decisions: I
+#   why: doesn't say when
