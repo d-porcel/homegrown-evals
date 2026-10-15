@@ -11,7 +11,7 @@ See examples/davidness/style.md for a finished one.
 -->
 
 ## House style
-<!-- 4–6 traits a judge can check in the text: length, greeting, sign-off, emoji, formatting. -->
+<!-- 4–6 traits a judge can check in the text, like length, greeting, sign-off, emoji and formatting. -->
 - <...>
 
 ### Never say

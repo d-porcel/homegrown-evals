@@ -1,9 +1,9 @@
-# Your benchmark's cases: each one is a message the model replies to, plus how to grade the reply.
+# Your benchmark's cases. Each one is what the model is given, plus how to grade the reply.
 #
 # Each case needs three fields:
 #   input        the message, the way it would really arrive
 #   target       your ideal reply, in your own words
-#   must_haves   what a good reply must do: a list, or a single sentence
+#   must_haves   what a good reply must do, as a list or a single sentence
 # Everything else is optional. docs/writing-a-benchmark.md lists every field, under "Case fields".
 #
 # Tips:

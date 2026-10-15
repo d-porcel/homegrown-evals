@@ -1,6 +1,6 @@
 # Model prices, in dollars per million tokens, in the format Inspect's --model-cost-config reads.
-# Each model needs all four prices: input, output, input_cache_write and input_cache_read. If its pricing
-# page lists no cache prices, use the input price for both. Run pytest after editing to check this file.
+# Each model needs input, output, input_cache_write and input_cache_read prices. If its pricing page lists
+# no cache prices, use the input price for both. Run pytest after editing to check this file.
 # With INSPECT_EVAL_MODEL_COST_CONFIG=prices.yaml in .env, every run records its cost in its log.
 # The leaderboard prices every run from this file, so all models are compared at the same prices
 # and a corrected price reaches older runs. A model missing here uses its log's cost, or shows none.

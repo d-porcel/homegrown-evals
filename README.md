@@ -1,14 +1,14 @@
 # Homegrown evals
 
-Public leaderboards can't tell you which AI model will do *your* job the way you would. They rank models on someone else's tasks. This repo lets you build a benchmark of how you work, without writing code, and pick a model on evidence instead of vibes. It shows where each model fails and what it costs, and lets you check whether the judge agrees with you.
+Public leaderboards can't tell you which AI model will do *your* job the way you would. They test general skills against someone else's idea of a good answer. This repo lets you build a benchmark of how you work, without writing code, and run models against it before you pick one. It shows where each model fails and what it costs, and lets you check whether the judge agrees with you.
 
 Built with [Inspect AI](https://inspect.aisi.org.uk/), so the tested model and the judge can be any model Inspect supports. OpenAI, Anthropic, OpenRouter, Together and local models through [Ollama](https://ollama.com/) work as installed. For other providers, add their package first, like `uv add google-genai` for Gemini.
 
-## The example: Davidness
+## Example benchmark
 
-The repo comes with a finished example benchmark, **Davidness**. I'm David, and I built it loosely around how I work: a model plays an assistant answering my email and Slack the way I would, in 14 cases, and the score says how close it gets to me, hence the name. It has to notice when IT's email has been hacked, keep a password out of Slack, and fire the slop cannon at AI-written sales pitches. For the record, I'd never let a model answer my messages as me, probably 🤖. It just made an easy example, since I'm an expert at being me.
+The repo comes with **Davidness**, a finished benchmark built loosely around how I work. A model plays an assistant answering my email and Slack the way I would, in 14 cases. It has to notice when IT's email has been hacked, keep a password out of Slack, and fire the slop cannon at AI-written sales pitches. For the record, I'd never let a model answer my messages as me, probably 🤖. It just made an easy example, since I'm an expert at being me.
 
-You can run it, read it and copy from it, in [`examples/davidness/`](examples/davidness/). [Its README](examples/davidness/README.md) has the whole story: what each case tests, how the judge was checked, what the models did, and the decisions behind it.
+You can run it, read it and copy from it, in [`examples/davidness/`](examples/davidness/). [Its README](examples/davidness/README.md) covers what each case tests, how the judge was checked, what the models did, and the decisions behind it.
 
 ## Quick start
 
@@ -29,13 +29,13 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory site/davidness    # the
 
 ### Build your own
 
-You don't write code: you fill in the plain-text files in the repo root, which have instructions in comments, and run a few commands.
+You don't write any code. You fill in the plain-text files in the repo root, which have instructions in comments, and run a few commands.
 
 **Write the cases yourself.** They are the benchmark. Each one is what the model is given, like a message or a request, the reply you'd want back, and what a good reply must do. If a model writes them, the benchmark tests what a model thinks a good reply is, and every score after that is meaningless. An AI can help with the rest, but not with this.
 
 1. **Describe the role:** fill in `brief.md` with who the model plays and how it decides, and `style.md` with how it writes.
 2. **Write your cases** in `cases.yaml`, each with an `id` (see [Case fields](docs/writing-a-benchmark.md#case-fields)).
-3. **Optional, add deterministic checks** to `checks.py`, for hard rules code can verify, like a length limit. A coding agent can write them: have it test each one, and run `ruff check --fix` and `ruff format`.
+3. **Optional, add deterministic checks** to `checks.py`, for hard rules code can verify, like a length limit. A coding agent can write them. Have it test each one, and run `ruff check --fix` and `ruff format`.
 4. **Check your files:** run `pytest`. It's free.
 5. **Test the judges:** in `judge_tests.yaml`, add a few replies that get something wrong, with the grades they should get (its comments show the format). Then run `python -m calibration test-judges` (see [Testing the judges](docs/checking-the-judge.md#testing-the-judges)).
 6. **Try one case:** run `inspect eval task.py --limit 1 --log-dir logs/smoke`, then read the reply and the judges' reasoning with `inspect view --log-dir logs/smoke`.
@@ -52,7 +52,7 @@ Help me build my own benchmark with this repo, following the Quick start in its 
 - Only add a check to checks.py for a hard rule I name, and test it on sentences that should pass and sentences that should fail.
 - Run pytest after every change. Fix what you wrote, but if one of my cases or golden answers fails, show me and let me fix it.
 - For judge_tests.yaml, you can draft replies that get something wrong, but I decide the grades each one should get.
-- Don't guess model prices for prices.yaml: take them from each provider's pricing page, and show me where they came from.
+- Don't guess model prices for prices.yaml. Take them from each provider's pricing page, and show me where they came from.
 - Ask before running anything that calls a model, and tell me roughly what it will cost.
 ```
 

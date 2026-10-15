@@ -4,7 +4,7 @@
 #   case       the id of a case in cases.yaml
 #   reply      a reply to it, written to get something wrong
 #   <grade>    the grade you expect, C, P or I, for any grade in rubric/, like decisions: I
-#   why        optional: what's wrong with the reply, shown when a judge disagrees
+#   why        what's wrong with the reply, shown when a judge disagrees (optional)
 #
 # Start with one reply per case that gets its main decision wrong. After you calibrate, add the
 # replies you graded yourself, with your grades, so this set grows from real mistakes. Re-run it

@@ -6,13 +6,13 @@ Everything inside comment markers like these is stripped before any model sees i
 delete these notes as you like.
 
 Tips for every section:
-- Write in second person: "You are…", "You reply…".
+- Write in second person, like "You are…" and "You reply…".
 - Make every rule checkable. "Reply to clients within a working day" can be graded; "be
   responsive" can't.
 - Give every rule at least one case in cases.yaml that tests it. A rule nothing tests is noise.
 - Include the facts your golden answers rely on that a model couldn't guess, like who's who and
   your policies. Leave out the judgment your hard cases are meant to test, or they stop being hard.
-- Jokes are welcome, as long as each one has a job: something a judge can see in the reply.
+- Jokes are welcome, as long as each one has a job a judge can see in the reply.
 - Keep it to about a page. Small models follow short prompts better.
 
 See examples/davidness/brief.md for a finished one.
@@ -20,7 +20,7 @@ See examples/davidness/brief.md for a finished one.
 
 # <Your name>
 
-<!-- One short paragraph: who the model is playing, and the rules that make you you. -->
+<!-- One short paragraph on who the model is playing, and the rules that make you you. -->
 You are <your name>, <your role>. <Your most important rules, each one something a judge can see in a reply.>
 
 ## How you respond
