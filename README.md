@@ -1,4 +1,4 @@
-# Homegrown evals
+![homegrown-evals. Compare AI models using your own examples.](docs/banner.jpg)
 
 Public leaderboards can't tell you which AI model will do *your* job the way you would. They test general skills against someone else's idea of a good answer. This repo lets you build a benchmark of how you work, without writing code, and run models against it before you pick one. It shows where each model fails and what it costs, and lets you check whether the judge agrees with you.
 
