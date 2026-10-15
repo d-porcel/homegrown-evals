@@ -128,7 +128,17 @@ def load_results(log_dir: str, benchmark: str, version: str) -> tuple[list[Resul
 def load_prices() -> dict[str, ModelCost]:
     if not PRICES.exists():
         return {}
-    return {model: ModelCost(**cost) for model, cost in (load_yaml(PRICES) or {}).items()}
+    prices: dict[str, ModelCost] = {}
+    for model, cost in (load_yaml(PRICES) or {}).items():
+        # Inspect needs all four prices, and stops every run with a long traceback without them
+        missing = [name for name in ModelCost.model_fields if not isinstance(cost, dict) or name not in cost]
+        if missing:
+            raise ValueError(
+                f"prices.yaml: {model} needs {', '.join(missing)}. If its pricing page lists no cache prices, "
+                "use the input price for both."
+            )
+        prices[model] = ModelCost(**cost)
+    return prices
 
 
 def is_complete(log: EvalLog) -> bool:

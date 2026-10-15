@@ -15,7 +15,7 @@ from inspect_ai.model import GenerateConfig
 from benchmark import ROOT, Benchmark, load_or_exit
 
 from .render import as_html, as_text
-from .results import Result, load_results
+from .results import Result, load_prices, load_results
 
 
 def main() -> None:
@@ -73,6 +73,11 @@ def main() -> None:
             f"{site} holds run logs, so the site can't go there. To rank the runs in it, put the folder before "
             f"--site: {command} {site} --site"
         )
+    # a mistake in prices.yaml gets a plain message, not a traceback
+    try:
+        load_prices()
+    except ValueError as error:
+        sys.exit(str(error))
     ranked, outdated, partial = load_results(args.log_dir, bench.folder, bench.version)
     print(as_text(bench, ranked, outdated, partial))
     if not (ranked or outdated or partial):

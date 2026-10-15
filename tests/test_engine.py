@@ -723,6 +723,15 @@ def test_cost_comes_from_the_log_or_from_prices(tmp_path: Path):
     assert cost_per_1k(log, {}) == 5.0, "a model missing from prices.yaml uses the cost its log recorded"
 
 
+def test_a_price_without_cache_prices_gets_a_plain_message(tmp_path: Path, monkeypatch: Any):
+    # pricing pages often list only input and output, and Inspect needs all four
+    prices = tmp_path / "prices.yaml"
+    prices.write_text("openai/gpt-6-luna: {input: 0.10, output: 0.50}\n", encoding="utf-8")
+    monkeypatch.setattr("leaderboard.results.PRICES", prices)
+    with pytest.raises(ValueError, match="prices.yaml: openai/gpt-6-luna needs input_cache_write, input_cache_read"):
+        load_prices()
+
+
 def test_prices_yaml_is_in_the_format_inspect_reads():
     prices = load_prices()
     assert prices, "prices.yaml has at least one model, each with input, output and cache prices"

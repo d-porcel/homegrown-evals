@@ -58,7 +58,7 @@ def test_every_case_has_what_the_judges_need(benchmark: str):
     ids = [case["id"] for case in bench.cases]
     assert len(ids) == len(set(ids)), "case ids must be unique"
     # a blank id: line leaves the id empty, so the case can never be graded, and every paid run of it is wasted
-    blank = [n for n, case_id in enumerate(ids, start=1) if not isinstance(case_id, str) or not case_id.strip()]
+    blank = [n for n, case_id in enumerate(ids, start=1) if case_id is None or not str(case_id).strip()]
     assert not blank, f"case {blank[0]} in cases.yaml has a blank id. Write one, or remove the id: line for a default."
 
 
