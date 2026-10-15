@@ -68,7 +68,9 @@ Or follow the steps yourself:
 
    The last two print the command to open the page, like `python3 -m http.server 8000 --bind 127.0.0.1 --directory site/my-benchmark`.
 
-Keep your benchmark private, since its brief describes who's who and how you work: make your copy of the repo private, or copy the scaffold's files, `rubric/` included, into a folder you add to `.gitignore`. Then pass that folder to each command: `inspect eval task.py -T benchmark=<folder>`, `python -m calibration test-judges --benchmark <folder>` and `python -m leaderboard --benchmark <folder>`. Before you trust the scores, [check that the judge grades the way you would](docs/checking-the-judge.md#comparing-the-judge-with-your-grades).
+Keep your benchmark private, since its brief describes who's who and how you work: when you create your copy with "Use this template", choose Private.
+
+Before you trust the scores, [check that the judge grades the way you would](docs/checking-the-judge.md#comparing-the-judge-with-your-grades).
 
 ## Going deeper
 

@@ -58,6 +58,16 @@ The two prompts in the repo root's `rubric/` already end by asking for a last li
 
 A new or changed prompt is a new judge, so test it before you trust it (see [Checking the judge](checking-the-judge.md)). Changing the rubric also changes the benchmark's version, so re-run the models.
 
+## Keeping a benchmark out of a public repo
+
+If your copy of the repo is public, for example a fork you use to send changes back to the template, keep your benchmark out of it: copy the scaffold's files, `rubric/` included, into a folder you add to `.gitignore`, and pass that folder to each command:
+
+```bash
+inspect eval task.py -T benchmark=<folder>
+python -m calibration test-judges --benchmark <folder>
+python -m leaderboard --benchmark <folder>
+```
+
 ## Tips from building Davidness
 
 [`examples/davidness/`](../examples/davidness/) shows every file finished, and [its README](../examples/davidness/README.md) explains the choices behind them. A few lessons:
