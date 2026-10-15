@@ -4,7 +4,7 @@
 #   input        the message, the way it would really arrive
 #   target       your ideal reply, in your own words
 #   must_haves   what a good reply must do: a list, or a single sentence
-# Everything else is optional. The README's "Case fields" section lists it all.
+# Everything else is optional. docs/writing-a-benchmark.md lists every field, under "Case fields".
 #
 # Tips:
 # - Test one rule per case, and give every rule in brief.md at least one case.

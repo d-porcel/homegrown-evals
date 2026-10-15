@@ -31,7 +31,7 @@ GRADER = ModelRole("grader", required=True)
 @scorer(metrics={"*": [mean(), stderr()]})
 def benchmark_judge(benchmark: str):
     # read the benchmark's files now, not when the run started, so re-grading an old run with
-    # `inspect score` uses the current brief, style guide, must-haves and rubric (see the README)
+    # `inspect score` uses the current brief, style guide, must-haves and rubric (see docs/checking-the-judge.md)
     bench = load_benchmark(benchmark)
     current_cases = {str(case["id"]): to_sample(case) for case in bench.cases}
     checks = load_checks(benchmark, bench.grades)
