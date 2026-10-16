@@ -1,8 +1,8 @@
 ![homegrown-evals. Compare AI models using your own examples.](docs/banner.jpg)
 
-Public leaderboards can't tell you which AI model will do *your* job the way you would. They test general skills against someone else's idea of a good answer. This repo lets you build a benchmark of how you work, without writing code, and run models against it before you pick one. It shows where each model fails and what it costs, and lets you check whether the judge agrees with you.
+Public benchmarks can't tell you which AI model will do *your* job the way you would. They test general skills against someone else's idea of a good answer. This repo lets you build a benchmark of your own use case, like how you work or what your support chatbot should say, and run models against it before you pick one. It shows where each model fails and what it costs. A second model grades every reply as a judge (LLM-as-a-judge), and you can check that it grades the way you would. The template is built on [Inspect AI](https://inspect.aisi.org.uk/) and opinionated on purpose, so you don't write any code. It fits tasks where the model is given a message or a request and writes one reply, like emails, chatbot answers or summaries, graded against your rules and your voice. For agents that use tools, take several turns or run their own code, use Inspect directly.
 
-Built with [Inspect AI](https://inspect.aisi.org.uk/), so the tested model and the judge can be any model Inspect supports. OpenAI, Anthropic, OpenRouter, Together and local models through [Ollama](https://ollama.com/) work as installed. For other providers, add their package first, like `uv add google-genai` for Gemini.
+The tested model and the judge can be any model Inspect supports. OpenAI, Anthropic, OpenRouter, Together and local models through [Ollama](https://ollama.com/) work as installed. For other providers, add their package first, like `uv add google-genai` for Gemini.
 
 ## Example benchmark
 
