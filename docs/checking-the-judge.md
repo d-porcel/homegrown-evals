@@ -20,7 +20,7 @@ No model writes anything; the judges grade the known replies with the same check
 Before trusting the scores, check that the judge grades the way you would. Run a few models into their own folder, including a smaller, cheaper one, so that about a third of the replies have problems for the judge to catch. If too few do, add a model that makes more mistakes. Grade the replies yourself without seeing the judge's grades, then compare:
 
 ```bash
-inspect eval task.py --model openai/gpt-6-astra,openai/gpt-6-luna,openai/gpt-5.4-mini --log-dir logs/calibration
+inspect eval task.py --model openai/gpt-6-astra,openai/gpt-6.1-sol,openai/gpt-6-luna --log-dir logs/calibration
 python -m calibration export      # a spreadsheet of the replies, shuffled, with models and judge grades hidden
 python -m calibration compare     # how well the judge matches your grades, and every disagreement
 ```

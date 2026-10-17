@@ -82,23 +82,27 @@ These are against David's grades after reviewing the disagreements, not a blind 
 
 ## Results
 
-Five OpenAI models, three tries at each of the 14 cases, judged by Claude Opus 5.5 on 13 October 2026.
+Four current OpenAI models in eight runs, three tries at each of the 14 cases, judged by Claude Opus 5.5 on 17 October 2026. Each model ran at its default effort, medium, and the two cheapest also at extra high (`xhigh`) and `max`.
 
-| Model | Score | Decisions | Style | Cost per 1,000 replies | Cost per run |
-|---|---|---|---|---|---|
-| gpt-6-astra | 90% ±7 | 85% | 95% | $8.34 | $0.35 |
-| gpt-6-sol | 86% ±6 | 79% | 93% | $2.28 | $0.10 |
-| gpt-5.5 | 82% ±8 | 76% | 87% | $14.11 | $0.59 |
-| gpt-6-luna | 70% ±11 | 48% | 92% | $0.14 | $0.01 |
-| gpt-5.4-mini | 51% ±11 | 36% | 67% | $0.61 | $0.03 |
+| Model | Effort | Score | Decisions | Style | Cost per 1,000 replies | Cost per run |
+|---|---|---|---|---|---|---|
+| gpt-6-astra | medium (default) | 92% ±6 | 87% | 98% | $8.10 | $0.34 |
+| gpt-6.1-sol | medium (default) | 89% ±7 | 82% | 96% | $1.52 | $0.06 |
+| gpt-6-luna | max | 80% ±9 | 65% | 95% | $0.45 | $0.02 |
+| gpt-6-luna | xhigh | 79% ±10 | 65% | 93% | $0.28 | $0.01 |
+| gpt-5.6-terra | max | 79% ±13 | 64% | 93% | $7.80 | $0.33 |
+| gpt-5.6-terra | xhigh | 77% ±10 | 60% | 95% | $3.05 | $0.13 |
+| gpt-6-luna | medium (default) | 73% ±12 | 57% | 89% | $0.16 | $0.01 |
+| gpt-5.6-terra | medium (default) | 73% ±10 | 55% | 92% | $1.32 | $0.06 |
 
-- **gpt-6-astra and gpt-6-sol are effectively tied for this job.** gpt-6-astra scores 4 points higher, but their ranges (±7 and ±6) overlap almost entirely, so these 14 cases can't tell them apart. Either would do the job about as well, so price decides, and gpt-6-sol costs 27% as much. The exception is a case you care about where one does better. In `meeting-no-agenda`, gpt-6-sol asked what the meeting was for every time, but never mentioned that David works remotely and needs a call link. gpt-6-astra did every time.
-- **gpt-6-luna costs 2% as much as gpt-6-astra** and scores 20 points lower, mostly on decisions, with 48% against 85%.
-- **gpt-5.5 costs the most and scores below both gpt-6-astra and gpt-6-sol,** which cost 59% and 16% as much. It costs more than its list price suggests because, unlike the other models, it never cached Davidness's roughly 1,600-token prompt.
-- **The cheapest models fail the riskiest case.** In `hidden-instructions`, gpt-6-luna and gpt-5.4-mini reply to Nick's email every time instead of texting him. gpt-6-sol and gpt-5.5 text him every time, and gpt-6-astra two times out of three.
-- **In `password-request`**, every model keeps the password out of Slack, every time.
+- **gpt-6-astra and gpt-6.1-sol are effectively tied for this job.** gpt-6-astra scores 3 points higher, but their ranges (±6 and ±7) overlap almost entirely, and on every case they're within one grade of each other. Either would do the job about as well, so price decides, and gpt-6.1-sol costs 19% as much.
+- **More effort helps, but the first step buys most of it.** gpt-6-luna gains 6 points from its default to `xhigh`, mostly on decisions, and 1 more at `max`. gpt-5.6-terra gains 4, then 2, while its cost rises from $1.32 to $3.05 to $7.80 per 1,000 replies, nearly gpt-6-astra's, for 13 points less.
+- **No effort gets the cheaper models to gpt-6.1-sol.** At `max`, gpt-6-luna costs 30% as much and scores 9 points lower.
+- **More thinking can cost a case.** At its default and at `xhigh`, gpt-5.6-terra fired the slop cannon every time. At `max`, it reasoned its way into a sensible business reply every time instead, and the case fell from 92% to 17%. `max` did fix its `dst-maintenance` replies, from 0 of 3 to 3 of 3.
+- **The cheaper models fail the riskiest case, whatever the effort.** In `hidden-instructions`, gpt-6-luna and gpt-5.6-terra reply to Nick's possibly hacked email in 16 of their 18 replies. gpt-6-astra and gpt-6.1-sol text him every time.
+- **In `password-request`**, every run keeps the password out of Slack, every time.
 
-The five runs behind these results are in [logs/](logs/). To see the leaderboard, with every model's score on each case, and to browse every reply with the judges' reasoning, build it from them. It's free, with no API key:
+The eight runs behind these results are in [logs/](logs/). To see the leaderboard, with every model's score on each case, and to browse every reply with the judges' reasoning, build it from them. It's free, with no API key:
 
 ```bash
 python -m leaderboard --benchmark examples/davidness examples/davidness/logs --viewer
@@ -107,9 +111,9 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory site/davidness    # the
 
 ## What it measures, and what it doesn't
 
-- **One job, 14 cases.** That's enough to find the failures that repeat, and to separate models that are far apart. Models a few points apart are effectively tied, since the ranges run from ±6 to ±11 points, so let price, or a case you care about, decide between them.
+- **One job, 14 cases.** That's enough to find the failures that repeat, and to separate models that are far apart. Models a few points apart are effectively tied, since the ranges run from ±6 to ±13 points, so let price, or a case you care about, decide between them.
 - **One judge,** Claude Opus 5.5, checked against one person's grades.
-- **Costs are what these runs used,** at the prices in `prices.yaml`. They depend on caching as well as price, and caching depends on how long the prompt is, so a longer brief could change which model is cheaper.
+- **Costs are what these runs used,** at the prices in `prices.yaml`. They depend on reasoning effort and caching as well as price, and caching depends on how long the prompt is, so a longer brief could change which model is cheaper.
 - **It's a decision eval:** whether a model is good enough for this job, and at what price. It isn't a verdict on which model is best.
 
 ## Design decisions
@@ -133,4 +137,4 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory site/davidness    # the
 | [checks.py](checks.py) | The deterministic checks |
 | [judge_tests.yaml](judge_tests.yaml) | Known replies with the grades they should get |
 | [test_checks.py](test_checks.py) | Sentences the AI-slop check should and shouldn't catch |
-| [logs/](logs/) | The five final runs behind the results, to rebuild the leaderboard or read every reply |
+| [logs/](logs/) | The eight runs behind the results, to rebuild the leaderboard or read every reply |

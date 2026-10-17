@@ -15,7 +15,7 @@ You can run it, read it and copy from it, in [`examples/davidness/`](examples/da
 Create your own copy with **Use this template** and choose Private, since your brief will describe who's who and how you work. Clone it, then set it up. You need [uv](https://docs.astral.sh/uv/getting-started/installation/), which installs the right Python for you, plus an API key for each provider you use (or Ollama for free local models).
 
 ```bash
-uv sync                      # Python 3.10+ and every package, at the exact versions in uv.lock
+uv sync                      # Python 3.11+ and every package, at the exact versions in uv.lock
 source .venv/bin/activate    # or start each command below with uv run
 cp .env.example .env         # pick the model to test and the judge, and add your API keys
 ```
@@ -39,7 +39,7 @@ You don't write any code. You fill in the plain-text files in the repo root, whi
 4. **Check your files:** run `pytest`. It's free.
 5. **Test the judges:** in `judge_tests.yaml`, add a few replies that get something wrong, with the grades they should get (its comments show the format). Then run `python -m calibration test-judges` (see [Testing the judges](docs/checking-the-judge.md#testing-the-judges)).
 6. **Try one case:** run `inspect eval task.py --limit 1 --log-dir logs/smoke`, then read the reply and the judges' reasoning with `inspect view --log-dir logs/smoke`.
-7. **Run your models:** add their prices to `prices.yaml`, following its comments (leave out local models, which are free), and run `pytest` to check them. Then run `inspect eval task.py --model <model-a>,<model-b> --epochs 3`. The judge comes from `.env`.
+7. **Run your models:** add their prices to `prices.yaml`, following its comments (leave out local models, which are free), and run `pytest` to check them. Then run `inspect eval task.py --model <model-a>,<model-b> --epochs 3`. The judge comes from `.env`. To try a model at another reasoning effort, run it again with `--reasoning-effort high`, and it gets its own row.
 8. **See the results:** run `python -m leaderboard`, or add `--viewer` for a web page with every reply, then open it with the command it prints.
 
 Prefer to be guided? Paste this into a coding agent, like Claude Code or Cursor, opened in this repo:
