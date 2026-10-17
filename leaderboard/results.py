@@ -58,8 +58,12 @@ class Result:
     cut_off: int = 0
     # where the run's log is, so the site can publish just the ranked runs
     location: str = ""
-    # settings that change the model's replies or cost, like "reasoning effort: low"
+    # settings that change the model's replies or cost, like "temperature: 0", besides the effort
     settings: str = ""
+    # the reasoning effort the run asked for, or "default" when it set none and the provider chose
+    effort: str = "default"
+    # the effort the provider says it used when the run set none, like "medium", if its replies say
+    provider_effort: str = ""
     # how the run ended: "success", or "error", "cancelled" or "started" for one that didn't finish
     status: str = "success"
     error: str = ""
@@ -69,9 +73,28 @@ class Result:
 
     @property
     def name(self) -> str:
-        """The model as the leaderboard shows it: two runs of one model with different settings are different
-        contenders, since settings like reasoning effort change both quality and cost."""
+        """The model as the leaderboard shows it, with any settings besides the effort, which has its own column."""
         return with_settings(self.model, self.settings)
+
+    @property
+    def effort_text(self) -> str:
+        """The effort as the table shows it, like "high", or "medium (default)" when the provider chose."""
+        if self.effort == "default" and self.provider_effort:
+            return f"{self.provider_effort} (default)"
+        return self.effort
+
+    @property
+    def label(self) -> str:
+        """The name with the effort, for lists that have no effort column."""
+        if self.effort == "default":
+            return self.name
+        return with_settings(self.model, ", ".join(part for part in (f"effort: {self.effort}", self.settings) if part))
+
+    @property
+    def contender(self) -> tuple[str, str]:
+        """Two runs of one model with different settings or efforts are different contenders, since both change
+        quality and cost."""
+        return (self.name, self.effort)
 
 
 def load_results(log_dir: str, benchmark: str, version: str) -> tuple[list[Result], list[Result], list[Result]]:
@@ -80,8 +103,9 @@ def load_results(log_dir: str, benchmark: str, version: str) -> tuple[list[Resul
     partial runs, which aren't ranked."""
     prices = load_prices()
     headers = [(info, read_eval_log(info, header_only=True)) for info in list_eval_logs(log_dir)]
-    current: dict[tuple[str, str], Result] = {}
-    outdated: dict[tuple[str, str], Result] = {}
+    # by model, settings, effort and judge
+    current: dict[tuple[str, str, str], Result] = {}
+    outdated: dict[tuple[str, str, str], Result] = {}
     partial: list[Result] = []
     for info, log in sorted(headers, key=lambda pair: pair[1].eval.created):
         # runs of other benchmarks, or from before runs recorded their benchmark, don't belong here
@@ -99,10 +123,12 @@ def load_results(log_dir: str, benchmark: str, version: str) -> tuple[list[Resul
                 partial.append(result)
             continue
         if result.version != version:
-            outdated[(result.name, result.judge)] = result
+            outdated[(*result.contender, result.judge)] = result
             continue
         # every reply has to be read: the log's summary misses a reply left ungraded in one epoch of a case
         samples = read_eval_log(info)
+        if result.effort == "default":
+            result.provider_effort = provider_effort(samples)
         result.other_version = other_version(samples, version)
         result.cut_off = sum(sample.limit is not None for sample in samples.samples or [])
         result.ungraded = ungraded(samples)
@@ -113,12 +139,13 @@ def load_results(log_dir: str, benchmark: str, version: str) -> tuple[list[Resul
         result.cost_per_1k = cost_per_1k(samples, prices)
         result.run_cost = run_cost(samples, prices)
         # a newer run of the same model and judge replaces the older one
-        current[(result.name, result.judge)] = result
+        current[(*result.contender, result.judge)] = result
     # a partial run made before that model's ranked run has nothing left to say
     partial = [
         result
         for result in partial
-        if (result.name, result.judge) not in current or result.run_date > current[(result.name, result.judge)].run_date
+        if (*result.contender, result.judge) not in current
+        or result.run_date > current[(*result.contender, result.judge)].run_date
     ]
     ranked = sorted(current.values(), key=lambda result: result.scores["overall"], reverse=True)
     stale = [result for key, result in outdated.items() if key not in current]
@@ -158,6 +185,7 @@ def to_result(log: EvalLog, prices: dict[str, ModelCost]) -> Result:
     stderr = overall.metrics.get("stderr") if overall else None
     grader = (log.eval.model_roles or {}).get("grader")
     judges = grader if isinstance(grader, list) else [grader] if grader else []
+    config = log.eval.model_generate_config
     return Result(
         model=log.eval.model,
         # the judge's bill isn't counted, so caching its prompts (see .env.example) doesn't make it a different judge
@@ -178,9 +206,14 @@ def to_result(log: EvalLog, prices: dict[str, ModelCost]) -> Result:
         cost_per_1k=cost_per_1k(log, prices),
         run_cost=run_cost(log, prices),
         location=log.location,
+        # the effort has its own column, so it stays out of the settings label
         settings=settings_label(
-            log.eval.model_generate_config, log.eval.model_args, log.eval.model_base_url, log.eval.config.epochs_reducer
+            config.model_copy(update={"reasoning_effort": None}),
+            log.eval.model_args,
+            log.eval.model_base_url,
+            log.eval.config.epochs_reducer,
         ),
+        effort=config.reasoning_effort or "default",
         status=log.status,
         completed=log.results.completed_samples if log.results else 0,
         total=log.results.total_samples if log.results else 0,
@@ -190,8 +223,12 @@ def to_result(log: EvalLog, prices: dict[str, ModelCost]) -> Result:
 
 def last_line(message: str, limit: int = 160) -> str:
     # a model error's message starts with the whole request, so the last line is the one that says what went
-    # wrong (its line breaks can be escaped, as \n)
+    # wrong (its line breaks can be escaped, as \n). When that line is a provider's error object, like
+    # {'type': 'error', 'error': {'message': 'Your credit balance is too low…'}}, its message is what to read
     line = re.split(r"\n|\\n", message.strip())[-1]
+    provider = re.search(r"""\\?['"]message\\?['"]:\s*\\?['"](.+?)\\?['"]\s*[,}]""", line)
+    if provider:
+        line = provider.group(1)
     return line if len(line) <= limit else line[: limit - 1] + "…"
 
 
@@ -255,6 +292,20 @@ def reply_usage(log: EvalLog) -> ModelUsage | None:
         if event.event == "model" and event.role is None and event.output.usage is not None
     ]
     return sum(usages[1:], usages[0]) if usages else None
+
+
+def provider_effort(log: EvalLog) -> str:
+    """The reasoning effort the provider used when the run set none. OpenAI's responses say it, like "medium";
+    other providers may not, which leaves it blank."""
+    for sample in log.samples or []:
+        for event in sample.events:
+            if event.event == "model" and event.role is None and event.call is not None:
+                response = event.call.response
+                reasoning = response.get("reasoning") if isinstance(response, dict) else None
+                effort = reasoning.get("effort") if isinstance(reasoning, dict) else None
+                if isinstance(effort, str):
+                    return effort
+    return ""
 
 
 def case_scores(log: EvalLog) -> dict[str, float]:

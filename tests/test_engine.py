@@ -9,9 +9,11 @@ import shutil
 import tempfile
 import time
 import zipfile
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from types import SimpleNamespace
+from typing import Any, cast
 
 import pytest
 from inspect_ai import eval as inspect_eval
@@ -41,8 +43,10 @@ from leaderboard.render import as_html, as_text, missing_text
 from leaderboard.results import (
     Result,
     cost_per_1k,
+    last_line,
     load_prices,
     load_results,
+    provider_effort,
     run_cost,
     settings_label,
 )
@@ -391,10 +395,12 @@ def test_settings_that_change_replies_get_their_own_row(tmp_path: Path):
     run_named(benchmark, logs, ["GRADE: I"] * 2, max_retries=2)
     bench = load_benchmark(benchmark)
     ranked, _, _ = load_results(str(logs), bench.folder, bench.version)
-    assert [(result.name, result.scores["overall"]) for result in ranked] == [
-        ("mockllm/model (reasoning effort: low)", 0.5),
-        ("mockllm/model", 0.0),
+    assert [(result.name, result.effort, result.scores["overall"]) for result in ranked] == [
+        ("mockllm/model", "low", 0.5),
+        ("mockllm/model", "default", 0.0),
     ]
+    # the effort has its own column, so lists without one name it
+    assert [result.label for result in ranked] == ["mockllm/model (effort: low)", "mockllm/model"]
 
 
 def test_runs_of_an_earlier_version_are_listed_until_rerun(tmp_path: Path):
@@ -584,12 +590,36 @@ def test_an_older_partial_run_goes_once_the_model_is_ranked(tmp_path: Path):
     assert len(ranked) == 1 and not partial, "the old one-case run no longer asks to be re-run"
 
 
+def test_a_providers_own_error_message_is_what_the_leaderboard_shows():
+    # the provider's explanation sits inside an error object, after the whole request
+    error = (
+        '{"model": "claude-opus-5-5", "max_tokens": 8192}\\n'
+        "BadRequestError(\"Error code: 400 - {\\'type\\': \\'error\\', \\'error\\': {\\'type\\': \\'invalid_request_error\\', "
+        "\\'message\\': \\'Your credit balance is too low to access the Anthropic API.\\'}, \\'request_id\\': \\'req_1\\'}\")"
+    )
+    assert last_line(error) == "Your credit balance is too low to access the Anthropic API."
+
+
 def test_replies_that_stopped_with_an_error_are_named_as_such(tmp_path: Path):
     bench = load_benchmark(make_benchmark(tmp_path))
     result = Result(
         "m", "j", cases=1, epochs=3, run_date=datetime(2026, 10, 12), version="v", scores={}, completed=2, total=3
     )
     assert missing_text(result, bench) == "1 of its 3 replies stopped with an error"
+
+
+def test_the_default_effort_is_named_when_the_provider_reports_it():
+    # OpenAI's replies say which effort they used when the run set none
+    event = SimpleNamespace(
+        event="model", role=None, call=SimpleNamespace(response={"reasoning": {"effort": "medium"}})
+    )
+    assert provider_effort(cast(Any, SimpleNamespace(samples=[SimpleNamespace(events=[event])]))) == "medium"
+    result = Result(
+        model="openai/gpt-6-luna", judge="judge", cases=1, epochs=1, run_date=datetime.now(), version="v", scores={}
+    )
+    assert result.effort_text == "default", "a provider that doesn't say leaves it plain"
+    assert replace(result, provider_effort="medium").effort_text == "medium (default)"
+    assert replace(result, effort="xhigh").effort_text == "xhigh"
 
 
 def test_settings_that_change_the_score_or_the_bill_get_a_label():

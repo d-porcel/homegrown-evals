@@ -28,15 +28,16 @@ def as_text(bench: Benchmark, ranked: list[Result], outdated: list[Result], part
     for judge, results in by_judge(ranked).items():
         lines.append(f"Judged by {judge}:")
         width = max([26, *(len(result.name) + 2 for result in results)])
+        effort_width = max([9, *(len(result.effort_text) + 2 for result in results)])
         lines.append(
-            f"{'model':<{width}}{bench.name.lower():>14}  |"
+            f"{'model':<{width}}{'effort':<{effort_width}}{bench.name.lower():>14}  |"
             + "".join(f"{grade:>{widths[grade]}}" for grade in bench.grades)
             + f"  |{'$ per 1k':>10}{'$ per run':>11}   {'cases × epochs':<16}run date"
         )
         for result in results:
             scores = "".join(f"{grade_text(result, grade):>{widths[grade]}}" for grade in bench.grades)
             lines.append(
-                f"{result.name:<{width}}{score_text(result):>14}  |{scores}  |{money(result.cost_per_1k):>10}"
+                f"{result.name:<{width}}{result.effort_text:<{effort_width}}{score_text(result):>14}  |{scores}  |{money(result.cost_per_1k):>10}"
                 f"{money(result.run_cost):>11}   {f'{result.cases} × {result.epochs}':<16}{run_date(result)}"
             )
         grid = text_grid(bench, results)
@@ -50,10 +51,10 @@ def as_text(bench: Benchmark, ranked: list[Result], outdated: list[Result], part
     lines = lines[:-1] if lines[-1] == "" else lines
     if outdated:
         lines += ["", "Out of date, re-run them to rank them:"]
-        lines += [f"  {r.name}, judged by {r.judge}, run {run_date(r)}" for r in outdated]
+        lines += [f"  {r.label}, judged by {r.judge}, run {run_date(r)}" for r in outdated]
     if partial:
         lines += ["", "Not ranked, for the reason on each line:"]
-        lines += [f"  {r.name}, {missing_text(r, bench)}, run {run_date(r)}" for r in partial]
+        lines += [f"  {r.label}, {missing_text(r, bench)}, run {run_date(r)}" for r in partial]
     return "\n".join(lines)
 
 
@@ -132,12 +133,18 @@ def case_text(result: Result, case: str) -> str:
     return "–" if score is None else f"{score:.0%}"
 
 
+def short_label(result: Result) -> str:
+    # the model without its provider, to fit a terminal, with its effort when it isn't the default
+    parts = [result.effort if result.effort != "default" else "", result.settings]
+    return with_settings(result.model.split("/")[-1], ", ".join(part for part in parts if part))
+
+
 def text_grid(bench: Benchmark, results: list[Result]) -> list[str]:
     cases = case_ids(bench, results)
     if not cases:
         return []
     # the model name without its provider, to fit a terminal
-    names = [with_settings(result.model.split("/")[-1], result.settings) for result in results]
+    names = [short_label(result) for result in results]
     widths = [max(len(name), 4) + 3 for name in names]
     first = max(len(case) for case in cases) + 2
     lines = [
@@ -158,7 +165,7 @@ def html_table(bench: Benchmark, judge: str, results: list[Result]) -> str:
         name=html.escape(bench.name),
         breakdown_width=len(bench.grades),
         breakdown_headers="".join(f'<th class="num">{html.escape(grade_title(grade))}</th>' for grade in bench.grades),
-        rows=rows or f'<tr><td class="empty" colspan="{7 + len(bench.grades)}">{EMPTY}</td></tr>',
+        rows=rows or f'<tr><td class="empty" colspan="{8 + len(bench.grades)}">{EMPTY}</td></tr>',
         grid=html_grid(bench, results),
     )
 
@@ -167,7 +174,7 @@ def html_row(rank: int, result: Result, grades: tuple[str, ...]) -> str:
     overall = result.scores["overall"]
     breakdown = "".join(f'<td class="num minor">{grade_text(result, grade)}</td>' for grade in grades)
     return (
-        f"<tr><td>{rank}</td><th>{html.escape(result.name)}</th>"
+        f'<tr><td>{rank}</td><th>{html.escape(result.name)}</th><td class="minor">{html.escape(result.effort_text)}</td>'
         f'<td class="num headline {band(overall)}">{whisker(overall, result.margin)}{overall:.0%}'
         f' <span class="minor">±{result.margin * 100:.0f}</span></td>'
         f'{breakdown}<td class="num">{money(result.cost_per_1k)}</td><td class="num">{money(result.run_cost)}</td>'
@@ -184,7 +191,7 @@ def html_grid(bench: Benchmark, results: list[Result]) -> str:
         f"        <tr><th>{html.escape(case)}</th>" + "".join(html_cell(result, case) for result in results) + "</tr>"
         for case in cases
     )
-    return GRID.substitute(models="".join(f'<th class="num">{html.escape(r.name)}</th>' for r in results), rows=rows)
+    return GRID.substitute(models="".join(f'<th class="num">{html.escape(r.label)}</th>' for r in results), rows=rows)
 
 
 def html_cell(result: Result, case: str) -> str:
@@ -205,7 +212,7 @@ def outdated_section(outdated: list[Result]) -> str:
     if not outdated:
         return ""
     items = "\n".join(
-        f"<li>{html.escape(r.name)}, judged by {html.escape(r.judge)}, run {run_date(r)}</li>" for r in outdated
+        f"<li>{html.escape(r.label)}, judged by {html.escape(r.judge)}, run {run_date(r)}</li>" for r in outdated
     )
     return (
         '<section class="outdated"><h2>Out of date</h2>'
