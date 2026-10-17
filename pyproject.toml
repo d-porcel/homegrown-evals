@@ -3,10 +3,10 @@ name = "homegrown-evals"
 version = "0.1.0"
 description = "Build a small benchmark of how you work, and pick an AI model for your job on evidence instead of vibes."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 # exact versions: a different Inspect can read the judges' answers differently, so it's part of the benchmark version
 dependencies = [
-    "inspect-ai==0.3.271",
+    "inspect-ai==0.3.281",
     "openai==3.19.2",
     "anthropic==1.8.0",
     "python-dotenv==1.2.3",
@@ -26,7 +26,7 @@ package = false
 
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 # pyflakes, pycodestyle's errors, import order, newer Python syntax, and likely bugs
