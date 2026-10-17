@@ -8,6 +8,8 @@ The tested model and the judge can be any model Inspect supports. OpenAI, Anthro
 
 The repo comes with **Davidness**, a finished benchmark built loosely around how I work. A model plays an assistant answering my email and Slack the way I would, in 14 cases. It has to notice when IT's email has been hacked, keep a password out of Slack, and fire the slop cannon at AI-written sales pitches. For the record, I'd never let a model answer my messages as me, probably 🤖. It just made an easy example, since I'm an expert at being me.
 
+![Davidness's leaderboard, eight runs of four OpenAI models with their reasoning effort, gpt-6-astra at 92% and gpt-6.1-sol at 89% on top, each with its decisions and style scores and its costs](docs/davidness-leaderboard.png)
+
 You can run it, read it and copy from it, in [`examples/davidness/`](examples/davidness/). [Its README](examples/davidness/README.md) covers what each case tests, how the judge was checked, what the models did, and the decisions behind it.
 
 ## Quick start

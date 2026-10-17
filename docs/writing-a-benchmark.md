@@ -89,7 +89,7 @@ checks.py, judge_tests.yaml                 its deterministic checks, and known 
 prices.yaml                                 model prices, for comparing models on cost
 pyproject.toml, uv.lock                     the dependencies, at exact versions, and the test and lint settings
 examples/davidness/                         the example benchmark: the same files, plus its README, tests and final runs
-docs/                                       these pages, and the README's banner
+docs/                                       these pages, and the README's images
 benchmark.py                                reads a benchmark folder, for all the tools below
 task.py                                     the Inspect task that runs a benchmark
 judges/                                     the scorer and the deterministic checks engine, shared by every benchmark
