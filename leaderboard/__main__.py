@@ -3,6 +3,7 @@ import json
 import os
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -16,6 +17,9 @@ from benchmark import ROOT, Benchmark, load_or_exit
 
 from .render import as_html, as_text
 from .results import Result, load_prices, load_results
+
+# for previewing the site: a port few local servers use, unlike vLLM's 8000 or the usual 3000, 8080 and 8888
+PREVIEW_PORT = 8765
 
 
 def main() -> None:
@@ -90,10 +94,25 @@ def main() -> None:
             built += f", plus Inspect's log viewer with {len(ranked)} runs, including every prompt and reply"
         elif args.viewer:
             built += ", without the log viewer, since no run is ranked yet"
+        port = preview_port()
         print(
             f"\nSite written to {site}/: {built}.\n"
-            f"See it at http://127.0.0.1:8000 after running: python3 -m http.server 8000 --bind 127.0.0.1 --directory {site}"
+            f"See it at http://127.0.0.1:{port} after running: "
+            f"python3 -m http.server {port} --bind 127.0.0.1 --directory {site}"
         )
+
+
+def preview_port() -> int:
+    """The port to preview the site on: PREVIEW_PORT, or a free one if something already uses it."""
+    for port in (PREVIEW_PORT, 0):
+        with socket.socket() as probe:
+            try:
+                # port 0 asks the system for any free port
+                probe.bind(("127.0.0.1", port))
+            except OSError:
+                continue
+            return probe.getsockname()[1]
+    return PREVIEW_PORT
 
 
 def moved_from(log_dir: str, bench: Benchmark) -> str | None:

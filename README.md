@@ -24,7 +24,7 @@ To see what you'll get, open Davidness's results. They're built from the runs in
 
 ```bash
 python -m leaderboard --benchmark examples/davidness examples/davidness/logs --viewer
-python3 -m http.server 8000 --bind 127.0.0.1 --directory site/davidness    # then open http://127.0.0.1:8000
+python3 -m http.server 8765 --bind 127.0.0.1 --directory site/davidness    # then open http://127.0.0.1:8765
 ```
 
 ### Build your own

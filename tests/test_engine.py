@@ -6,6 +6,7 @@ import csv
 import math
 import re
 import shutil
+import socket
 import tempfile
 import time
 import zipfile
@@ -38,7 +39,16 @@ from benchmark import ROOT, load_benchmark
 from calibration.__main__ import compare, export, rescore
 from calibration.judge_tests import judge_tests, report
 from judges import benchmark_judge
-from leaderboard.__main__ import build_site, copy_logs, default_site, holds_run_logs, moved_from, nothing_to_rank
+from leaderboard.__main__ import (
+    PREVIEW_PORT,
+    build_site,
+    copy_logs,
+    default_site,
+    holds_run_logs,
+    moved_from,
+    nothing_to_rank,
+    preview_port,
+)
 from leaderboard.render import as_html, as_text, missing_text
 from leaderboard.results import (
     Result,
@@ -572,6 +582,20 @@ def test_private_settings_never_reach_the_site(tmp_path: Path):
         elif path.is_file():
             published += path.read_bytes()
     assert not [secret for secret in secrets if secret.encode() in published]
+
+
+def test_the_site_preview_never_suggests_a_port_in_use():
+    # vLLM serves on 8000 by default, so the preview avoids it, and moves elsewhere if its own port is taken
+    assert PREVIEW_PORT != 8000
+    with socket.socket() as taken:
+        try:
+            taken.bind(("127.0.0.1", PREVIEW_PORT))
+        except OSError:
+            pass  # something else already uses it, which is the same situation
+        port = preview_port()
+        assert port != PREVIEW_PORT
+        with socket.socket() as probe:
+            probe.bind(("127.0.0.1", port))
 
 
 def test_each_benchmark_gets_its_own_site_folder():

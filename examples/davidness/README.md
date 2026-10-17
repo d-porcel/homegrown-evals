@@ -106,7 +106,7 @@ The eight runs behind these results are in [logs/](logs/). To see the leaderboar
 
 ```bash
 python -m leaderboard --benchmark examples/davidness examples/davidness/logs --viewer
-python3 -m http.server 8000 --bind 127.0.0.1 --directory site/davidness    # then open http://127.0.0.1:8000
+python3 -m http.server 8765 --bind 127.0.0.1 --directory site/davidness    # then open http://127.0.0.1:8765
 ```
 
 ## What it measures, and what it doesn't

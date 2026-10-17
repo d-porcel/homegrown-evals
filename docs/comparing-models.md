@@ -38,10 +38,10 @@ python -m leaderboard --site      # the leaderboard page, in site/<your benchmar
 python -m leaderboard --viewer    # the same, plus Inspect's log viewer to browse every reply
 ```
 
-To see it, serve the folder on your own machine and open http://127.0.0.1:8000. The leaderboard prints the exact command after it builds the site. The viewer loads its logs over HTTP, so opening `index.html` straight from your files won't show the replies. `--bind 127.0.0.1` keeps the page off your network, so nobody on the same Wi-Fi can read it:
+To see it, serve the folder on your own machine and open http://127.0.0.1:8765. The leaderboard prints the exact command after it builds the site, with another port if something already uses 8765. The viewer loads its logs over HTTP, so opening `index.html` straight from your files won't show the replies. `--bind 127.0.0.1` keeps the page off your network, so nobody on the same Wi-Fi can read it:
 
 ```bash
-python3 -m http.server 8000 --bind 127.0.0.1 --directory site/<your benchmark's name>
+python3 -m http.server 8765 --bind 127.0.0.1 --directory site/<your benchmark's name>
 ```
 
 `--viewer` adds Inspect's log viewer, so readers can go from a score to the replies behind it. It publishes far more than the scores, including the model's whole system prompt (your brief and style guide), every case with its golden answer and must-haves, every reply, and the judges' reasoning. Private settings like model arguments, server URLs and extra request fields are left out of it. To publish the site, copy its folder to any static host, like GitHub Pages.
